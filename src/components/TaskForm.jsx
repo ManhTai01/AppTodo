@@ -1,39 +1,39 @@
 import { useEffect, useState } from "react";
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
 
-import * as action from'./../actions/index';
+import * as action from "./../actions/index";
 
 function TaskForm(props) {
+  const [task, setTask] = useState({
+    id: "",
+    name: "",
+    status: false,
+  });
   useEffect(() => {
-    if (props.task) {
+    if (props.itemEditing) {
       setTask({
-        id:props.task.id,
-        name: props.task.name,
-        status:props.task.status
-      })
-    } 
-    if (!props.task) {
-      setTask({
-        id: '',
-        name: '',
-        status:0
-      })
+        id: props.itemEditing.id,
+        name: props.itemEditing.name,
+        status: props.itemEditing.status,
+      });
     }
-  },[props.task])
+    if (!props.itemEditing) {
+      setTask({
+        id: "",
+        name: "",
+        status: 0,
+      });
+    }
+  }, [props.itemEditing]);
   const onClose = () => {
     props.onClose();
   };
-  const [task, setTask] = useState({
-    name: "",
-    status: 0,
-  });
+
   const onChange = (event) => {
     var target = event.target;
     var value = target.value;
     var name = target.name;
-    if (name === "status") {
-      value=target.value === "1" ? 1 :0
-    }
+
     setTask({
       ...task,
       [name]: value,
@@ -41,23 +41,25 @@ function TaskForm(props) {
   };
   const onClear = () => {
     setTask({
-      name: '',
-      status:0
-    })
-  }
+      id: "",
+      name: "",
+      status: false,
+    });
+  };
   const onSubmit = (event) => {
     event.preventDefault();
-    props.onAddtask(task);
+    props.onSaveTask(task);
     onClear();
     onClose();
   };
-  var { id } = task;
+
+  if (!props.isDisplay) return "";
+
   return (
-   
     <div className="panel panel-warning">
       <div className="panel-heading">
         <h3 className="panel-title">
-          {id !== '' ? 'Sửa Công Việc' : 'Thêm Công Việc'}
+          {task.id !== "" ? "Sửa Công Việc" : "Thêm Công Việc"}
           <span className="fa fa-times-cricle text-right" onClick={onClose}>
             <i class="fas fa-window-close"></i>
           </span>
@@ -76,19 +78,20 @@ function TaskForm(props) {
             />
           </div>
           <label>Trạng Thái :</label>
-         
-          <select className="form-control" 
-            name='status'
+
+          <select
+            className="form-control"
+            name="status"
             value={task.status}
-            onChange={onChange}>
-                  <option value={1} >Kích Hoạt</option>
-            <option value={0}>Ẩn</option>
-                </select> 
+            onChange={onChange}
+          >
+            <option value={true}>Kích Hoạt</option>
+            <option value={false}>Ẩn</option>
+          </select>
           <br />
           <div className="text-center">
-            <button type="submit" className="btn btn-warning" >
-              {id !== '' ? 'Sửa' : 'Thêm '}
-            
+            <button type="submit" className="btn btn-warning">
+              {task.id !== "" ? "Sửa" : "Thêm "}
             </button>
             &nbsp;
             <button type="button" className="btn btn-danger" onClick={onClear}>
@@ -101,18 +104,20 @@ function TaskForm(props) {
   );
 }
 
-
-const mapStateToProps=(state)=>{
-  return{
-
-  }
-}
-const mapDispatchToProps=(dispatch,props)=>{
-
+const mapStateToProps = (state) => {
   return {
-    onAddtask : (task)=>{
-      dispatch(action.addTask(task));
-    }
-  }
-}
-export default connect(mapStateToProps,mapDispatchToProps)(TaskForm);
+    isDisplay: state.isDisplay,
+    itemEditing: state.itemEditing,
+  };
+};
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    onSaveTask: (task) => {
+      dispatch(action.saveTask(task));
+    },
+    onCloseForm: () => {
+      dispatch(action.closeForm());
+    },
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);

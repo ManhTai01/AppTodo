@@ -2,12 +2,9 @@ import "./App.css";
 import TaskForm from "./components/TaskForm";
 import Control from "./components/Control";
 import TaskList from "./components/TaskList";
-import RandomString from "randomstring";
 import { useEffect, useState } from "react";
-import {connect} from 'react-redux';
-import * as action from './actions/index';
-
-
+import { connect } from "react-redux";
+import * as action from "./actions/index";
 
 function App(props) {
   const [tasks, setTasks] = useState([]);
@@ -16,38 +13,45 @@ function App(props) {
     name: "",
     status: -1,
   });
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, []);
   const handleAddTask = () => {
-   props.onToggleForm();
+    if (props.itemEditing && props.itemEditing != null) {
+      props.onOpenForm();
+    } else {
+      props.onToggleForm();
+    }
+    props.onClearTask({
+      id: "",
+      name: "",
+      status: false,
+    });
   };
- const onGenerateData=()=>{
-    var tasks=[
-      {
-        id:RandomString.generate(10),
-        name:"hoc react",
-        status:true,
-      },
-      {
-        id:RandomString.generate(10),
-        name:"hoc react",
-        status:true,
-      },
-      {
-        id:RandomString.generate(10),
-        name:"hoc react",
-        status:true,
-      }
-    ];
-    localStorage.setItem("tasks",JSON.stringify(tasks));
-  }
+  // const onGenerateData = () => {
+  //   var tasks = [
+  //     {
+  //       id: RandomString.generate(10),
+  //       name: "hoc react",
+  //       status: true,
+  //     },
+  //     {
+  //       id: RandomString.generate(10),
+  //       name: "hoc react",
+  //       status: true,
+  //     },
+  //     {
+  //       id: RandomString.generate(10),
+  //       name: "hoc react",
+  //       status: true,
+  //     },
+  //   ];
+  //   localStorage.setItem("tasks", JSON.stringify(tasks));
+  // };
 
   const onClose = () => {
-props.onCloseForm();
+    props.onCloseForm();
   };
   const onShowForm = () => {
-props.onOpenForm();
+    props.onOpenForm();
   };
 
   const findIndex = (id) => {
@@ -69,16 +73,7 @@ props.onOpenForm();
   //   }
   //   localStorage.setItem("tasks", JSON.stringify(tasks));
   // };
-  const onDelete = (id) => {
-    var item = [...tasks];
-    var index = findIndex(id);
-    if (index !== -1) {
-      item.splice(index, 1);
-      setTasks(item);
-    }
-    localStorage.setItem("tasks", JSON.stringify(item));
-    onClose();
-  };
+
   const onUpdate = (id) => {
     var item = [...tasks];
     var index = findIndex(id);
@@ -95,33 +90,31 @@ props.onOpenForm();
   };
 
   useEffect(() => {
-  
     filterTask();
   }, [filter]);
 
   const filterTask = () => {
-    if (filter) {
-      if (localStorage && localStorage.getItem("tasks")) {
-        var tasks = JSON.parse(localStorage.getItem("tasks"));
-      }
-      setTasks(tasks);
-      
-      var item = [...tasks];
-      if (filter.name) {
-        item = tasks.filter((task) => {
-          return task.name.toLowerCase().indexOf(filter.name) !== -1;
-        });
-        setTasks(item);
-      }
-      item = tasks.filter((task) => {
-        if (filter.status === -1) {
-          return task;
-        } else {
-          return task.status === filter.status;
-        }
-      });
-      setTasks(item);
-    }
+    // if (filter) {
+    //   if (localStorage && localStorage.getItem("tasks")) {
+    //     var tasks = JSON.parse(localStorage.getItem("tasks"));
+    //   }
+    //   setTasks(tasks);
+    //   var item = [...tasks];
+    //   if (filter.name) {
+    //     item = tasks.filter((task) => {
+    //       return task.name.toLowerCase().indexOf(filter.name) !== -1;
+    //     });
+    //     setTasks(item);
+    //   }
+    //   item = tasks.filter((task) => {
+    //     if (filter.status === -1) {
+    //       return task;
+    //     } else {
+    //       return task.status === filter.status;
+    //     }
+    //   });
+    //   setTasks(item);
+    // }
   };
 
   const onSearch = (key) => {
@@ -150,15 +143,7 @@ props.onOpenForm();
       </div>
       <div className="row">
         <div className="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-          {props.isDisplay ? (
-            <TaskForm
-              onClose={onClose}
-            
-              task={taskEditing}
-            ></TaskForm>
-          ) : (
-            ""
-          )}
+          <TaskForm onClose={onClose}></TaskForm>
         </div>
         <div
           className={
@@ -177,36 +162,34 @@ props.onOpenForm();
 
           <Control onSearch={onSearch}></Control>
           <div className="row mt-15">
-            <TaskList 
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-              onFilter={onFilter}
-            ></TaskList>
+            <TaskList onUpdate={onUpdate} onFilter={onFilter}></TaskList>
           </div>
         </div>
       </div>
     </div>
   );
 }
-const mapStateToProps=(state)=>{
+const mapStateToProps = (state) => {
   return {
-    isDisplay : state.isDisplay,
+    isDisplay: state.isDisplay,
+    itemEditing: state.itemEditing,
   };
 };
-const mapDispatchToProps=(dispatch,props)=>{
-  return{
-    onToggleForm : ()=>{
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    onToggleForm: () => {
       dispatch(action.toggleForm());
     },
-    onCloseForm:()=>{
-      dispatch(action.closeForm())
-    
-  },
-  onOpenForm :()=>{
-    dispatch(action.openForm())
-   }
-
+    onCloseForm: () => {
+      dispatch(action.closeForm());
+    },
+    onOpenForm: () => {
+      dispatch(action.openForm());
+    },
+    onClearTask: (task) => {
+      dispatch(action.editTask(task));
+    },
   };
 };
 
-export default connect(mapStateToProps,mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

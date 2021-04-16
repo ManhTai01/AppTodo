@@ -1,38 +1,45 @@
 import { useEffect, useState } from "react";
 import TaskItem from "./TaskItem";
-import {connect} from 'react-redux';
-
-
-
-
+import { connect } from "react-redux";
+import * as action from "./../actions/index";
 
 function TaskList(props) {
-  console.log(props.todos);
   const [filter, setFilter] = useState({
-    name: '',
+    name: "",
     status: -1,
   });
-  const onChange = (event)=> {
-    var target = event.target;
-    var name = target.name;
-    var value = target.value;
 
-    
+  useEffect(() => {
+    props.onFilter(filter);
+  }, [filter]);
+
+  const onChange = (event) => {
+    const { name, value } = event.target;
+
     setFilter({
       ...filter,
-      [name]:value
-
-    })
-    props.onFilter(
-      name === "name" ? value : filter.name,
-      name === "status" ? value : filter.status
-    )
-   
-
+      [name]: name === "status" ? Number(value) : value,
+    });
+  };
+  var { tasks, filterTable } = props;
+  if (filterTable) {
+    if (filterTable.name) {
+      tasks = tasks.filter((task) => {
+        return (
+          task.name.toLowerCase().indexOf(filterTable.name.toLowerCase()) !== -1
+        );
+      });
+      console.log(tasks);
+    }
+    tasks = tasks.filter((task) => {
+      if (filterTable.status === -1) {
+        return task;
+      } else {
+        return task.status === (filterTable.status === 1 ? true : false);
+      }
+    });
   }
-  
   return (
-    
     <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12 mt-15">
       <table className="table table-bordered table-hover">
         <thead>
@@ -60,9 +67,8 @@ function TaskList(props) {
                 className="form-control"
                 name="status"
                 value={filter.status}
-                 onChange={onChange}
+                onChange={onChange}
               >
-                
                 <option value={-1}>Tất Cả</option>
                 <option value={0}>Ẩn</option>
                 <option value={1}>Kích Hoạt</option>
@@ -70,30 +76,30 @@ function TaskList(props) {
             </td>
             <td></td>
           </tr>
-          {
-            props.tasks &&
-            props.tasks.map((task, index) => {
-            return (
-              <TaskItem
-                key={task.id}
-                index={index}
-                task={task}
-                onDelete={props.onDelete}
-              ></TaskItem>
-            );
-          })}
+          {tasks &&
+            tasks.map((task, index) => {
+              return (
+                <TaskItem key={task.id} index={index} task={task}></TaskItem>
+              );
+            })}
         </tbody>
       </table>
     </div>
   );
 }
 
+const mapStateToProps = (state) => {
+  return {
+    tasks: state.tasks,
+    filterTable: state.filter,
+  };
+};
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    onFilter: (filter) => {
+      dispatch(action.Filter(filter));
+    },
+  };
+};
 
-
-const mapStateToProps=(state)=>{
-  return{
-    tasks: state.tasks
-
-  }
-}
-export default connect(mapStateToProps,null)(TaskList);
+export default connect(mapStateToProps, mapDispatchToProps)(TaskList);
