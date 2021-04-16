@@ -4,53 +4,52 @@ import Control from "./components/Control";
 import TaskList from "./components/TaskList";
 import RandomString from "randomstring";
 import { useEffect, useState } from "react";
+import {connect} from 'react-redux';
+import * as action from './actions/index';
 
-function App() {
+
+
+function App(props) {
   const [tasks, setTasks] = useState([]);
-  const [isDisplay, setIsDisplay] = useState(false);
   const [taskEditing, setTaskEditing] = useState(null);
   const [filter, setFilter] = useState({
     name: "",
     status: -1,
   });
   useEffect(() => {
-    if (localStorage && localStorage.getItem("tasks")) {
-      var tasks = JSON.parse(localStorage.getItem("tasks"));
-    }
-    setTasks(tasks);
-    filterTask();
+
   }, []);
   const handleAddTask = () => {
-    if (isDisplay && taskEditing !== null) {
-      setIsDisplay(true);
-      setTaskEditing(null);
-    } else {
-      setIsDisplay(!isDisplay);
-      setTaskEditing(null);
-    }
+   props.onToggleForm();
   };
+ const onGenerateData=()=>{
+    var tasks=[
+      {
+        id:RandomString.generate(10),
+        name:"hoc react",
+        status:true,
+      },
+      {
+        id:RandomString.generate(10),
+        name:"hoc react",
+        status:true,
+      },
+      {
+        id:RandomString.generate(10),
+        name:"hoc react",
+        status:true,
+      }
+    ];
+    localStorage.setItem("tasks",JSON.stringify(tasks));
+  }
 
   const onClose = () => {
-    setIsDisplay(false);
+props.onCloseForm();
   };
   const onShowForm = () => {
-    setIsDisplay(true);
+props.onOpenForm();
   };
-  const onSubmit = (data) => {
-    const item = tasks ? [...tasks] : [];
 
-    console.log(data);
-    if (data.id === "") {
-      data.id = RandomString.generate(10);
-      item.push(data);
-    } else {
-      var index = findIndex(data.id);
-      item[index] = data;
-    }
-    setTaskEditing(null);
-    setTasks(item);
-    localStorage.setItem("tasks", JSON.stringify(item));
-  };
   const findIndex = (id) => {
     var item = [...tasks];
     var x = -1;
@@ -61,15 +60,15 @@ function App() {
     });
     return x;
   };
-  const onUpdateStatus = (id) => {
-    var item = [...tasks];
-    var index = findIndex(id);
-    if (index !== -1) {
-      item[index].status = tasks[index].status === 0 ? 0 : 1;
-      setTasks(item);
-    }
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  };
+  // const onUpdateStatus = (id) => {
+  //   var item = [...tasks];
+  //   var index = findIndex(id);
+  //   if (index !== -1) {
+  //     item[index].status = tasks[index].status === 0 ? 0 : 1;
+  //     setTasks(item);
+  //   }
+  //   localStorage.setItem("tasks", JSON.stringify(tasks));
+  // };
   const onDelete = (id) => {
     var item = [...tasks];
     var index = findIndex(id);
@@ -96,10 +95,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (localStorage && localStorage.getItem("tasks")) {
-      var tasks = JSON.parse(localStorage.getItem("tasks"));
-    }
-    setTasks(tasks);
+  
     filterTask();
   }, [filter]);
 
@@ -109,8 +105,7 @@ function App() {
         var tasks = JSON.parse(localStorage.getItem("tasks"));
       }
       setTasks(tasks);
-      console.log("Aaaa");
-      console.log(tasks);
+      
       var item = [...tasks];
       if (filter.name) {
         item = tasks.filter((task) => {
@@ -147,13 +142,18 @@ function App() {
       <div className="text-center">
         <h1>Quản Lý Công Việc</h1>
         <hr />
+        {/* <button
+        type="button"
+        className="btn btn-danger ml-15"
+        onClick={onGenerateData}
+        ></button> */}
       </div>
       <div className="row">
         <div className="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-          {isDisplay ? (
+          {props.isDisplay ? (
             <TaskForm
               onClose={onClose}
-              onSubmit={onSubmit}
+            
               task={taskEditing}
             ></TaskForm>
           ) : (
@@ -162,7 +162,7 @@ function App() {
         </div>
         <div
           className={
-            isDisplay
+            props.isDisplay
               ? "col-xs-8 col-sm-8 col-md-8 col-lg-8"
               : "col-xs-12 col-sm-12 col-md-12 col-lg-12"
           }
@@ -177,9 +177,7 @@ function App() {
 
           <Control onSearch={onSearch}></Control>
           <div className="row mt-15">
-            <TaskList
-              tasks={tasks}
-              onUpdateStatus={onUpdateStatus}
+            <TaskList 
               onDelete={onDelete}
               onUpdate={onUpdate}
               onFilter={onFilter}
@@ -190,5 +188,25 @@ function App() {
     </div>
   );
 }
+const mapStateToProps=(state)=>{
+  return {
+    isDisplay : state.isDisplay,
+  };
+};
+const mapDispatchToProps=(dispatch,props)=>{
+  return{
+    onToggleForm : ()=>{
+      dispatch(action.toggleForm());
+    },
+    onCloseForm:()=>{
+      dispatch(action.closeForm())
+    
+  },
+  onOpenForm :()=>{
+    dispatch(action.openForm())
+   }
 
-export default App;
+  };
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(App);

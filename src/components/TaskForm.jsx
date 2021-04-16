@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import {connect} from 'react-redux';
+
+import * as action from'./../actions/index';
 
 function TaskForm(props) {
   useEffect(() => {
@@ -44,7 +47,7 @@ function TaskForm(props) {
   }
   const onSubmit = (event) => {
     event.preventDefault();
-    props.onSubmit(task);
+    props.onAddtask(task);
     onClear();
     onClose();
   };
@@ -97,4 +100,19 @@ function TaskForm(props) {
     </div>
   );
 }
-export default TaskForm;
+
+
+const mapStateToProps=(state)=>{
+  return{
+
+  }
+}
+const mapDispatchToProps=(dispatch,props)=>{
+
+  return {
+    onAddtask : (task)=>{
+      dispatch(action.addTask(task));
+    }
+  }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(TaskForm);

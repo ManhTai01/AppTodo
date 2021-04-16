@@ -23,21 +23,19 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-.text-right{
+.text-right {
   float: right;
-  
 }
-.mt-15{
+.mt-15 {
   margin-top: 15px;
-  
 }
-.mr-5{
+.mr-5 {
   margin-right: 5px;
 }
-.ml-5{
+.ml-5 {
   margin-left: 5px;
 }
-.pr-5{
+.pr-5 {
   padding-right: 5px;
 }
 .App-link {
