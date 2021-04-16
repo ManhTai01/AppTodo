@@ -121,14 +121,6 @@ function App(props) {
     if (localStorage && localStorage.getItem("tasks")) {
       var tasks = JSON.parse(localStorage.getItem("tasks"));
     }
-    setTasks(tasks);
-    var item = [...tasks];
-    if (key) {
-      item = tasks.filter((task) => {
-        return task.name.toLowerCase().indexOf(key) !== -1;
-      });
-      setTasks(item);
-    }
   };
   return (
     <div className="container">
@@ -160,7 +152,7 @@ function App(props) {
             <span class="fa fa-plus mr-5"></span>Thêm Công Việc
           </button>
 
-          <Control onSearch={onSearch}></Control>
+          <Control></Control>
           <div className="row mt-15">
             <TaskList onUpdate={onUpdate} onFilter={onFilter}></TaskList>
           </div>

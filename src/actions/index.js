@@ -47,3 +47,9 @@ export const Filter = (filter) => {
     filter,
   };
 };
+export const search = (key) => {
+  return {
+    type: types.SEARCH,
+    key,
+  };
+};

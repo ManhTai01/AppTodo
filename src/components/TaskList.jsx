@@ -21,7 +21,9 @@ function TaskList(props) {
       [name]: name === "status" ? Number(value) : value,
     });
   };
-  var { tasks, filterTable } = props;
+  var { tasks, filterTable, keyword } = props;
+
+  //filter
   if (filterTable) {
     if (filterTable.name) {
       tasks = tasks.filter((task) => {
@@ -29,7 +31,6 @@ function TaskList(props) {
           task.name.toLowerCase().indexOf(filterTable.name.toLowerCase()) !== -1
         );
       });
-      console.log(tasks);
     }
     tasks = tasks.filter((task) => {
       if (filterTable.status === -1) {
@@ -37,6 +38,13 @@ function TaskList(props) {
       } else {
         return task.status === (filterTable.status === 1 ? true : false);
       }
+    });
+  }
+
+  //search
+  if (keyword) {
+    tasks = tasks.filter((task) => {
+      return task.name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1;
     });
   }
   return (
@@ -92,6 +100,7 @@ const mapStateToProps = (state) => {
   return {
     tasks: state.tasks,
     filterTable: state.filter,
+    keyword: state.search,
   };
 };
 const mapDispatchToProps = (dispatch, props) => {
